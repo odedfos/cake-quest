@@ -24,4 +24,17 @@ Illustrations go in `assets/backgrounds/`, `assets/characters/` and `assets/prop
 
 ## Tech stack
 
-Not chosen yet. Prefer something simple to host as a static site.
+- **Vite + TypeScript + Preact.** Builds to a static site in `dist/` with relative URLs, so it can be hosted anywhere (GitHub Pages, Netlify).
+- **Plain CSS** with custom properties in `src/styles.css`; no CSS framework.
+- **Fonts** are bundled via Fontsource: Andika for English (made for early readers), Baloo 2 for titles, Rubik for Hebrew.
+- **Tests:** Vitest with jsdom.
+
+Commands: `npm run dev`, `npm test`, `npm run typecheck`, `npm run build`.
+
+## Code layout
+
+- `src/screens/` – one component per screen; `src/app.tsx` switches between them.
+- `src/components/GameImage.tsx` – renders an illustration by its `assets/` path, or a labelled placeholder when the file is missing. Use it for every illustration.
+- `src/components/SpeechLine.tsx` – an English line with Listen and the Hebrew bubble.
+- `src/assets.ts` – finds the files under `assets/` at build time. If a newly added illustration does not show up, restart the dev server.
+- `src/speech.ts` – read-aloud through `speechSynthesis`.

@@ -1,0 +1,341 @@
+:root {
+  --sand: #f3e3c3;
+  --cream: #fbf3e2;
+  --sky: #a9d4ec;
+  --sky-deep: #7fbde0;
+  --terracotta: #c8623a;
+  --terracotta-dark: #a24a27;
+  --wood: #b07a48;
+  --wood-dark: #7a4f2c;
+  --sage: #6f9a5c;
+  --sage-dark: #4f7740;
+  --ink: #4a2f1d;
+  --ink-soft: #7a5a44;
+
+  --font-body: 'Andika', system-ui, sans-serif;
+  --font-title: 'Baloo 2', 'Andika', system-ui, sans-serif;
+  --font-hebrew: 'Rubik', system-ui, sans-serif;
+
+  --gutter: max(16px, env(safe-area-inset-left));
+  --shadow: 0 6px 18px rgb(74 47 29 / 0.18);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--sand);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.4;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  height: 100%;
+}
+
+/* ---------- Screens ---------- */
+
+.screen {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.screen__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  z-index: -1;
+}
+
+/* ---------- Placeholders for missing illustrations ---------- */
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 10px;
+  border: 3px dashed rgb(74 47 29 / 0.35);
+  border-radius: 20px;
+  background: rgb(251 243 226 / 0.55);
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.2;
+  overflow: hidden;
+}
+
+.placeholder__label {
+  font-weight: 700;
+}
+
+.placeholder__path {
+  font-size: 11px;
+  opacity: 0.8;
+  word-break: break-all;
+}
+
+.placeholder.screen__bg {
+  /* Label top-left so it doesn't collide with the hero's placeholder. */
+  justify-content: flex-start;
+  border: 0;
+  border-radius: 0;
+  padding: var(--gutter);
+  background:
+    radial-gradient(circle at 82% 16%, #fff4c4 0 6%, transparent 6.5%),
+    linear-gradient(to bottom, var(--sky-deep) 0%, var(--sky) 45%, #e9d3a8 62%, var(--sand) 100%);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  font: 700 1.05rem/1 var(--font-body);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.btn:active {
+  transform: translateY(2px);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--sky-deep);
+  outline-offset: 3px;
+}
+
+.btn--listen {
+  background: var(--terracotta);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--terracotta-dark);
+}
+
+.btn--hebrew {
+  background: var(--cream);
+  color: var(--ink);
+  border: 2px solid #e2cfa9;
+  font-family: var(--font-hebrew);
+  font-weight: 500;
+}
+
+.btn--hebrew[aria-pressed='true'] {
+  border-color: var(--ink);
+}
+
+.btn--play {
+  min-height: 64px;
+  min-width: 200px;
+  padding: 0 40px;
+  background: var(--sage);
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 5px 0 var(--sage-dark), var(--shadow);
+}
+
+.btn--play:active {
+  box-shadow: 0 3px 0 var(--sage-dark), var(--shadow);
+}
+
+/* ---------- Speech line (Listen → Hebrew) ---------- */
+
+.speech-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.speech-line__text {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.6vw + 0.5rem, 1.6rem);
+  font-weight: 700;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.speech-line__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.he-bubble {
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 18px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-hebrew);
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ---------- Title screen ---------- */
+
+.title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 2dvh, 20px);
+  padding: max(16px, env(safe-area-inset-top)) var(--gutter) max(16px, env(safe-area-inset-bottom));
+}
+
+.title-sign {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(500px, 100%, 64dvh);
+  aspect-ratio: 2 / 1;
+  transform-origin: top center;
+  animation: sign-sway 4s ease-in-out infinite alternate;
+}
+
+.title-sign__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.title-sign__art.placeholder {
+  background: rgb(176 122 72 / 0.85);
+  border-color: rgb(74 47 29 / 0.5);
+  color: var(--cream);
+}
+
+.title-sign__text {
+  position: relative;
+  margin: 0;
+  /* Sits a little below centre, under the sign's ropes. */
+  padding-top: 6%;
+  font-family: var(--font-title);
+  max-width: 88%;
+  font-size: clamp(2.2rem, 8vw, 4.2rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-wrap: balance;
+  text-align: center;
+  color: var(--ink);
+  text-shadow: 0 2px 0 rgb(251 243 226 / 0.45);
+}
+
+.title-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 2.5dvh, 22px);
+  width: min(560px, 100%);
+  padding: 18px 20px 22px;
+  border-radius: 28px;
+  background: rgb(251 243 226 / 0.94);
+  box-shadow: var(--shadow);
+}
+
+.title-hero {
+  position: absolute;
+  left: max(8px, 4vw);
+  bottom: 0;
+  width: auto;
+  height: min(38dvh, 340px);
+  aspect-ratio: 1;
+  z-index: -1;
+}
+
+@keyframes sign-sway {
+  from {
+    transform: rotate(-1.2deg);
+  }
+  to {
+    transform: rotate(1.2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-sign {
+    animation: none;
+  }
+}
+
+/* Landscape phones: keep everything on one screen. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .title-sign {
+    width: min(340px, 80dvh);
+  }
+
+  .title-sign__text {
+    font-size: clamp(1.8rem, 6dvh + 0.6rem, 2.6rem);
+  }
+
+  .title-card {
+    padding: 12px 18px 14px;
+  }
+
+  .speech-line__text {
+    font-size: 1.1rem;
+  }
+
+  .btn--play {
+    min-height: 52px;
+    font-size: 1.5rem;
+  }
+
+  .title-hero {
+    height: 46dvh;
+  }
+}
+
+/* ---------- Coming soon stub ---------- */
+
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: var(--gutter);
+  text-align: center;
+}
+
+.coming-soon h1 {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 2.4rem;
+}
+
+.coming-soon p {
+  margin: 0;
+  font-size: 1.3rem;
+}

@@ -1,37 +1,22 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render } from 'preact';
-import { act } from 'preact/test-utils';
+import { describe, expect, it, vi } from 'vitest';
+import { click, mount } from '../test-utils';
 import { TitleScreen } from './TitleScreen';
 
-let root: HTMLElement;
-
-function mount(onPlay = () => {}) {
-  root = document.createElement('div');
-  document.body.append(root);
-  act(() => render(<TitleScreen onPlay={onPlay} />, root));
-  return root;
-}
-
-afterEach(() => {
-  render(null, root);
-  root.remove();
-});
-
 describe('TitleScreen', () => {
-  it('shows labelled placeholders for illustrations that do not exist yet', () => {
-    const el = mount();
-    const paths = [...el.querySelectorAll('.placeholder')].map((p) => p.getAttribute('data-asset'));
-    expect(paths).toEqual(['backgrounds/bg_title.png', 'props/ui_sign.png', 'characters/char_kid1_idle.png']);
+  it('shows the illustrations, now that they exist', () => {
+    const el = mount(<TitleScreen onPlay={() => {}} />);
+    expect(el.querySelector('.placeholder')).toBeNull();
+    expect(el.querySelectorAll('img')).toHaveLength(3);
   });
 
   it('keeps the title as real text', () => {
-    expect(mount().querySelector('h1')?.textContent).toBe('Operation Cake');
+    expect(mount(<TitleScreen onPlay={() => {}} />).querySelector('h1')?.textContent).toBe('Operation Cake');
   });
 
   it('shows the Hebrew translation in its own RTL bubble on tap', () => {
-    const el = mount();
+    const el = mount(<TitleScreen onPlay={() => {}} />);
     expect(el.querySelector('.he-bubble')).toBeNull();
-    act(() => (el.querySelector('.btn--hebrew') as HTMLButtonElement).click());
+    click(el.querySelector('.btn--hebrew'));
     const bubble = el.querySelector('.he-bubble');
     expect(bubble?.getAttribute('dir')).toBe('rtl');
     expect(bubble?.getAttribute('lang')).toBe('he');
@@ -39,8 +24,8 @@ describe('TitleScreen', () => {
 
   it('calls onPlay from the Play button', () => {
     const onPlay = vi.fn();
-    const el = mount(onPlay);
-    act(() => (el.querySelector('.btn--play') as HTMLButtonElement).click());
+    const el = mount(<TitleScreen onPlay={onPlay} />);
+    click(el.querySelector('.btn--play'));
     expect(onPlay).toHaveBeenCalledOnce();
   });
 });

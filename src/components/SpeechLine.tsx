@@ -1,18 +1,25 @@
 import { useState } from 'preact/hooks';
+import { useGame } from '../game/GameContext';
 import { canSpeak, speak } from '../speech';
+import { TapText } from './TapText';
 
 type Props = {
   en: string;
   he: string;
+  class?: string;
 };
 
-// An English line with its first two help tiers: Listen, then the Hebrew translation.
-export function SpeechLine({ en, he }: Props) {
+// An English line with its help tiers: tap a word, Listen to the whole line, then the
+// Hebrew translation in its own bubble.
+export function SpeechLine({ en, he, class: className = '' }: Props) {
   const [showHebrew, setShowHebrew] = useState(false);
+  const { noteHebrew } = useGame();
 
   return (
-    <div class="speech-line">
-      <p class="speech-line__text">{en}</p>
+    <div class={`speech-line ${className}`}>
+      <p class="speech-line__text">
+        <TapText text={en} />
+      </p>
       <div class="speech-line__actions">
         {canSpeak() && (
           <button type="button" class="btn btn--listen" onClick={() => speak(en)}>
@@ -26,7 +33,10 @@ export function SpeechLine({ en, he }: Props) {
           dir="rtl"
           aria-label="Hebrew translation"
           aria-pressed={showHebrew}
-          onClick={() => setShowHebrew(!showHebrew)}
+          onClick={() => {
+            if (!showHebrew) noteHebrew();
+            setShowHebrew(!showHebrew);
+          }}
         >
           עברית
         </button>

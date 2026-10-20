@@ -22,6 +22,8 @@ A web quest game that teaches English to Israeli kids in grades 4–6. The playe
 
 Illustrations go in `assets/backgrounds/`, `assets/characters/` and `assets/props/`, named as in `docs/ASSETS.md`. Until a file exists, show a labelled placeholder instead of failing.
 
+`scripts/process_assets.py SOURCE TARGET …` turns raw generated images into game-ready PNGs: backgrounds cropped to 3:2 at 1536×1024, characters and props cut out of their white background at 1024×1024, all compressed.
+
 ## Tech stack
 
 - **Vite + TypeScript + Preact.** Builds to a static site in `dist/` with relative URLs, so it can be hosted anywhere (GitHub Pages, Netlify).
@@ -34,7 +36,10 @@ Commands: `npm run dev`, `npm test`, `npm run typecheck`, `npm run build`.
 ## Code layout
 
 - `src/screens/` – one component per screen; `src/app.tsx` switches between them.
+- `src/content/` – everything the player reads: stage scripts (`stage1.ts`), the stage list, heroes, and `glossary.ts` with the Hebrew meaning (and picture) of every tappable word. Tests fail if a word in the content or in a screen's `en="…"` line has no glossary entry.
+- `src/game/` – `save.ts` (progress, settings and the word notebook in `localStorage`), `difficulty.ts` (adaptive level rules) and `GameContext.tsx`, which every screen uses through `useGame()`.
 - `src/components/GameImage.tsx` – renders an illustration by its `assets/` path, or a labelled placeholder when the file is missing. Use it for every illustration.
-- `src/components/SpeechLine.tsx` – an English line with Listen and the Hebrew bubble.
+- `src/components/SpeechLine.tsx` – an English line with tappable words, Listen and the Hebrew bubble. Use it for every line the player reads.
+- `src/components/WordHelp.tsx` – the bubble for a tapped word: Listen, picture, then Hebrew (which adds the word to the notebook).
 - `src/assets.ts` – finds the files under `assets/` at build time. If a newly added illustration does not show up, restart the dev server.
 - `src/speech.ts` – read-aloud through `speechSynthesis`.

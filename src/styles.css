@@ -317,25 +317,916 @@ body {
   }
 }
 
-/* ---------- Coming soon stub ---------- */
+/* ---------- Shared bits ---------- */
 
-.coming-soon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: var(--gutter);
+.card {
+  border-radius: 28px;
+  background: rgb(251 243 226 / 0.95);
+  box-shadow: var(--shadow);
+}
+
+.screen-title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1;
   text-align: center;
 }
 
-.coming-soon h1 {
-  margin: 0;
-  font-family: var(--font-title);
-  font-size: 2.4rem;
+.btn--round {
+  padding: 0;
+  width: 48px;
 }
 
-.coming-soon p {
-  margin: 0;
+.btn--close {
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  color: var(--ink-soft);
   font-size: 1.3rem;
+}
+
+.btn--soft {
+  background: var(--cream);
+  color: var(--ink);
+  border: 2px solid #e2cfa9;
+}
+
+.btn--next {
+  background: var(--sage);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--sage-dark);
+}
+
+.btn--danger {
+  background: var(--terracotta);
+  color: #fff;
+}
+
+.btn--bar {
+  min-height: 44px;
+  padding: 0 14px;
+  background: rgb(251 243 226 / 0.95);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+}
+
+.badge {
+  min-width: 24px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--terracotta);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+/* Tappable words inside a sentence. */
+.word {
+  margin: 0;
+  padding: 2px 1px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.word:hover,
+.word:focus-visible {
+  background: rgb(127 189 224 / 0.3);
+  outline: none;
+}
+
+.blank {
+  display: inline-block;
+  width: 2.6em;
+  margin: 0 0.15em;
+  border-bottom: 3px solid currentColor;
+  vertical-align: -0.1em;
+}
+
+.speech-line--small .speech-line__text {
+  font-size: 1.05rem;
+}
+
+.speech-line--small .btn {
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 0.95rem;
+}
+
+/* ---------- Top bar ---------- */
+
+.top-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+  padding: max(10px, env(safe-area-inset-top)) var(--gutter) 0;
+  pointer-events: none;
+}
+
+.top-bar__spacer {
+  flex: 1;
+}
+
+/* ---------- Word help bubble ---------- */
+
+.word-help {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(340px, calc(100vw - 32px));
+  padding: 12px 14px 16px;
+  border-radius: 24px;
+  background: var(--cream);
+  box-shadow: 0 10px 30px rgb(74 47 29 / 0.3);
+  transform: translateX(-50%);
+  animation: pop-in 0.18s ease-out;
+}
+
+.word-help__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.word-help__word {
+  flex: 1;
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.word-help__picture {
+  width: 140px;
+  height: 100px;
+  object-fit: contain;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}
+
+/* ---------- Panels (notebook, settings, note) ---------- */
+
+.panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: rgb(74 47 29 / 0.45);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 32px);
+  border-radius: 28px;
+  background: var(--cream);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 12px 6px 22px;
+}
+
+.panel__title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.panel__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 22px 22px;
+  overflow-y: auto;
+}
+
+.notebook__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notebook__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 18px;
+  background: #fff8ea;
+}
+
+.notebook__picture {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.notebook__picture--empty {
+  border-radius: 12px;
+  background: var(--sand);
+}
+
+.notebook__word {
+  flex: 1;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.notebook__he {
+  flex-basis: 100%;
+}
+
+.settings__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.settings__group legend {
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.settings__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 2px solid #e2cfa9;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.settings__option:has(input:checked) {
+  border-color: var(--sage);
+  background: rgb(111 154 92 / 0.12);
+}
+
+.settings__option input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--sage);
+}
+
+.settings__option span {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings__option small {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.settings__now {
+  margin: 4px 0 0;
+}
+
+.settings__actions,
+.settings__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.settings__confirm p {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* ---------- Choose your meerkat ---------- */
+
+.hero-select,
+.house-map {
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) var(--gutter) max(16px, env(safe-area-inset-bottom));
+}
+
+.house-map {
+  padding-top: 72px;
+}
+
+.hero-select__card,
+.house-map__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(720px, 100%);
+  padding: 20px;
+}
+
+.house-map__card {
+  width: min(620px, 100%);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.hero-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px 10px;
+  border: 3px solid transparent;
+  border-radius: 20px;
+  background: #fff8ea;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.hero-option[aria-checked='true'] {
+  border-color: var(--sage);
+  background: rgb(111 154 92 / 0.15);
+}
+
+.hero-option__img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.hero-option__name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.name-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.name-field input {
+  min-height: 48px;
+  width: 12ch;
+  padding: 0 14px;
+  border: 2px solid #e2cfa9;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font: 700 1.2rem var(--font-body);
+}
+
+.name-field input:focus {
+  outline: 3px solid var(--sky-deep);
+}
+
+@media (max-width: 520px) {
+  .hero-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---------- House map ---------- */
+
+.stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stage-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage-item__main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 6px 16px 6px 8px;
+  border: 0;
+  border-radius: 18px;
+  background: #fff8ea;
+  color: var(--ink);
+  font: 700 1.15rem var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.stage-item__num {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--sand);
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+}
+
+.stage-item__title {
+  flex: 1;
+}
+
+.stage-item__status {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.stage-item--open .stage-item__main {
+  background: var(--sage);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--sage-dark);
+}
+
+.stage-item--open .stage-item__num {
+  background: rgb(255 255 255 / 0.3);
+}
+
+.stage-item--open .stage-item__status {
+  color: #fff;
+}
+
+.stage-item--done .stage-item__num {
+  background: var(--sage);
+  color: #fff;
+}
+
+.stage-item .btn--listen {
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: none;
+  border: 2px solid #e2cfa9;
+}
+
+.stage-item--soon .stage-item__main {
+  opacity: 0.7;
+}
+
+.map-hero {
+  position: absolute;
+  right: max(8px, 3vw);
+  bottom: 0;
+  z-index: -1;
+  margin: 0;
+  text-align: center;
+}
+
+.map-hero__img {
+  display: block;
+  height: min(36dvh, 300px);
+  aspect-ratio: 1;
+}
+
+.map-hero__name {
+  display: none;
+}
+
+/* ---------- Stage: the kitchen scene ---------- */
+
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--sand);
+}
+
+.scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  flex: none;
+  overflow: hidden;
+}
+
+.scene > *,
+.scene__obj {
+  position: absolute;
+}
+
+.scene__bg {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.scene__dad {
+  left: 52%;
+  top: 43%;
+  width: 32%;
+  aspect-ratio: 1;
+}
+
+.scene__dad--wiggle {
+  animation: wiggle 0.25s ease-in-out 4;
+}
+
+.scene__splash {
+  left: 62%;
+  top: 34%;
+  width: 26%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  animation: splash 1.6s ease-out both;
+}
+
+.scene__hero {
+  left: 26%;
+  bottom: 1%;
+  width: 30%;
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.scene__obj {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition:
+    left 0.6s ease,
+    top 0.6s ease,
+    width 0.6s ease;
+}
+
+.scene__obj-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 4px 6px rgb(74 47 29 / 0.25));
+}
+
+.scene__obj--toolbox {
+  left: 4%;
+  top: 68%;
+  width: 14%;
+}
+
+.scene__obj--with-dad {
+  left: 46%;
+  top: 77%;
+  width: 10%;
+}
+
+.scene__obj--photo {
+  left: 80%;
+  top: 35%;
+  width: 8%;
+}
+
+.scene__obj--note {
+  left: 58%;
+  top: 2%;
+  width: 10%;
+}
+
+.scene__obj--appear {
+  animation: appear 0.5s ease-out both, nudge 1.2s ease-in-out 0.5s infinite;
+}
+
+.scene__obj.is-reveal {
+  animation: nudge 0.9s ease-in-out infinite;
+}
+
+.scene__obj.is-reveal .scene__obj-img,
+.scene__obj.is-right .scene__obj-img {
+  filter: drop-shadow(0 0 10px #fff4c4) drop-shadow(0 0 4px #fff4c4);
+}
+
+.scene__obj.is-wrong {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes wiggle {
+  50% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes splash {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+@keyframes nudge {
+  50% {
+    transform: scale(1.08) rotate(-3deg);
+  }
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+/* ---------- Stage: Dad's dialog ---------- */
+
+.dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px var(--gutter) max(16px, env(safe-area-inset-bottom));
+  background: var(--cream);
+}
+
+.dialog__speaker {
+  align-self: flex-start;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--wood);
+  color: #fff;
+  font-weight: 700;
+}
+
+.dialog .speech-line {
+  align-items: flex-start;
+}
+
+.dialog .speech-line__text {
+  text-align: left;
+}
+
+.dialog .speech-line__actions {
+  justify-content: flex-start;
+}
+
+.tip,
+.hint {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: #fff8ea;
+}
+
+.hint {
+  flex-direction: column;
+  border: 2px dashed var(--wood);
+}
+
+.hint__label {
+  font-weight: 700;
+  color: var(--wood-dark);
+}
+
+.tip__label {
+  font-size: 1.4rem;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.choice {
+  display: flex;
+  align-items: stretch;
+  border: 3px solid #e2cfa9;
+  border-radius: 18px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.choice__btn {
+  flex: 1;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 700 1.15rem var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.choice__btn:disabled {
+  cursor: default;
+}
+
+.choice__listen {
+  width: 48px;
+  border: 0;
+  border-left: 2px solid #f0e2c4;
+  background: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.choice.is-right {
+  border-color: var(--sage);
+  background: rgb(111 154 92 / 0.18);
+}
+
+.choice.is-wrong {
+  border-color: #e2cfa9;
+  opacity: 0.45;
+  animation: shake 0.4s ease-in-out;
+}
+
+.choice.is-reveal {
+  border-color: var(--sage);
+  animation: nudge 0.9s ease-in-out infinite;
+}
+
+.dialog__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.feedback {
+  flex: 1;
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--wood-dark);
+}
+
+/* ---------- Dad's note ---------- */
+
+.note-paper {
+  align-self: center;
+  width: min(400px, 100%);
+  padding: 22px 20px 18px 34px;
+  border-radius: 4px 4px 14px 4px;
+  /* Lined notebook paper with a red margin line, drawn in CSS so the text stays crisp. */
+  background:
+    linear-gradient(to right, transparent 22px, rgb(200 98 58 / 0.45) 22px 24px, transparent 24px),
+    repeating-linear-gradient(to bottom, #fffaf0 0 calc(1.6em - 1px), #c9dbe6 calc(1.6em - 1px) 1.6em);
+  box-shadow: 0 6px 14px rgb(74 47 29 / 0.2);
+  transform: rotate(-1.2deg);
+  font-size: 1.15rem;
+}
+
+.note-paper__lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.note-panel .he-bubble p {
+  margin: 2px 0;
+}
+
+/* ---------- Stage done ---------- */
+
+.stage-done {
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px 24px;
+  text-align: center;
+}
+
+.stage-done__hero {
+  width: 160px;
+  aspect-ratio: 1;
+}
+
+/* ---------- Stage layouts ---------- */
+
+/* Tablets and desktops in landscape: the kitchen fills the screen (cropped a little at the
+   edges), and Dad's dialog sits over the empty wall at the top left. */
+@media (orientation: landscape) and (max-aspect-ratio: 19/10) {
+  .stage {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .scene {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100vw, 150dvh);
+    transform: translate(-50%, -50%);
+  }
+
+  .dialog {
+    position: absolute;
+    top: 68px;
+    left: var(--gutter);
+    width: min(48vw, 540px);
+    max-height: calc(100dvh - 84px);
+    overflow-y: auto;
+    border-radius: 24px;
+    background: rgb(251 243 226 / 0.96);
+    box-shadow: var(--shadow);
+  }
+}
+
+/* Wide, short screens (phones in landscape): the kitchen on the left, the dialog beside it. */
+@media (orientation: landscape) and (min-aspect-ratio: 19/10) {
+  .stage {
+    flex-direction: row;
+    height: 100dvh;
+  }
+
+  .scene {
+    width: auto;
+    height: 100dvh;
+  }
+
+  .dialog {
+    flex: 1;
+    min-width: 0;
+    padding-top: 64px;
+    overflow-y: auto;
+  }
+
+  .dialog .speech-line__text {
+    font-size: 1.1rem;
+  }
+}
+
+/* Portrait: the kitchen on top, the dialog below. */
+@media (orientation: portrait) {
+  .stage {
+    padding-top: 64px;
+  }
+
+  .dialog {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene__obj,
+  .scene__obj-img,
+  .scene__dad,
+  .scene__splash,
+  .choice,
+  .word-help {
+    animation: none !important;
+    transition: none !important;
+  }
 }

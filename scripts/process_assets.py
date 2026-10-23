@@ -7,10 +7,11 @@ TARGET is the path under assets/ from docs/ASSETS.md, e.g. backgrounds/bg_title.
 or characters/char_kid1_idle.png.
 
 - backgrounds/: centre-cropped to 3:2 and resized to 1536x1024.
-- characters/ and props/: the white background connected to the image border is
-  made transparent (with soft edges and shadows kept as partial alpha), and the
-  image is resized to 1024x1024 without re-framing, so characters keep the same
-  scale as each other.
+- characters/ and props/: the white background is made transparent, including
+  white gaps the drawing encloses (between an arm and the body, between the legs).
+  Soft edges fade out, and grey floor shadows become a see-through dark shadow.
+  The image is resized to 1024x1024 without re-framing, so characters keep the
+  same scale as each other.
 
 Every file is then quantised with pngquant and optimised with oxipng.
 
@@ -35,6 +36,22 @@ SPRITE_SIZE = 1024
 WHITE_LO = 6
 WHITE_HI = 48
 
+# A white gap enclosed by the drawing counts as background when almost all of it is
+# pure white and it is large enough; painted whites (a t-shirt) are shaded, and eye
+# highlights are small.
+HOLE_MAX_MEDIAN = 4
+HOLE_MIN_AREA = 0.0002  # of the image
+
+# Pale grey pixels around the drawing are shadow: they become a dark, see-through
+# shadow instead of a light opaque patch. On the floor (the bottom of the image), where
+# Gemini paints the cast shadow, a darker and slightly coloured or bluish shade counts
+# too; higher up that would eat into white clothes.
+SHADOW_MAX_SATURATION = 25
+SHADOW_FLOOR_TOP = 0.75  # of the image height
+SHADOW_FLOOR_SATURATION = 32
+SHADOW_MAX_DIST = 100
+SHADOW_STRENGTH = 1.6
+
 # Drawings whose own edges are nearly white need a tighter cut, or they fade out
 # along with the background.
 WHITE_HI_OVERRIDES = {
@@ -57,16 +74,31 @@ def background(im: Image.Image) -> Image.Image:
 def remove_white(im: Image.Image, white_hi: int) -> Image.Image:
     rgb = np.asarray(im.convert('RGB')).astype(np.float32)
     dist = (255 - rgb).max(axis=2)
+    saturation = rgb.max(axis=2) - rgb.min(axis=2)
+    cool = rgb[..., 2] >= rgb[..., 0] - 5
+    floor = np.zeros(dist.shape, bool)
+    floor[int(SHADOW_FLOOR_TOP * dist.shape[0]) :] = True
+    floor_shadow = floor & (dist < SHADOW_MAX_DIST) & ((saturation < SHADOW_FLOOR_SATURATION) | (cool & (saturation < 50)))
+    shadowish = (saturation < SHADOW_MAX_SATURATION) | floor_shadow
 
-    # Only near-white areas that touch the border count as background, so white
-    # details inside the drawing (eye highlights, paper) stay opaque.
-    candidate = dist < white_hi
-    labels, _ = ndimage.label(candidate)
+    # Near-white areas that touch the border are background, and so are large, pure
+    # white gaps the drawing encloses. Other white details stay opaque.
+    candidate = (dist < white_hi) | floor_shadow
+    labels, count = ndimage.label(candidate)
     border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
-    bg = np.isin(labels, border[border > 0])
+    keep = set(border[border > 0].tolist())
+    sizes = ndimage.sum(candidate, labels, range(1, count + 1))
+    medians = ndimage.median(dist, labels, range(1, count + 1))
+    for i in range(count):
+        if sizes[i] >= HOLE_MIN_AREA * dist.size and medians[i] <= HOLE_MAX_MEDIAN:
+            keep.add(i + 1)
+    bg = np.isin(labels, list(keep))
 
     alpha = np.ones(dist.shape, np.float32)
-    alpha[bg] = np.clip((dist[bg] - WHITE_LO) / (white_hi - WHITE_LO), 0, 1)
+    edge = bg & ~shadowish
+    shadow = bg & shadowish
+    alpha[edge] = np.clip((dist[edge] - WHITE_LO) / (white_hi - WHITE_LO), 0, 1)
+    alpha[shadow] = np.clip((dist[shadow] - WHITE_LO) * SHADOW_STRENGTH / 255, 0, 1)
 
     # Un-blend from white so semi-transparent edges don't keep a white halo.
     a = np.maximum(alpha, 1e-3)[..., None]

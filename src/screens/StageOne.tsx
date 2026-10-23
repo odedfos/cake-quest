@@ -9,6 +9,7 @@ import { resolve } from '../content/text';
 import type { SceneObject, Step } from '../content/types';
 import type { LevelRules } from '../game/difficulty';
 import { useGame } from '../game/GameContext';
+import { useWalk } from '../game/walk';
 import { playSuccess } from '../sound';
 import { canSpeak, speak } from '../speech';
 
@@ -25,6 +26,16 @@ const OBJECTS: { id: SceneObject; path: string; label: string; word: string }[] 
 ];
 
 const PRAISE = ['Great!', 'Well done!', 'Yes!', 'Super!'];
+
+// Where the meerkat stands (its `left`, in percent of the kitchen's width). It walks in
+// from off screen, fetches the toolbox and carries it to Dad.
+const OFF_SCREEN = -32;
+const HOME = 20;
+const AT_TOOLBOX = -4;
+const BY_DAD = 24;
+const UNDER_NOTE = 28;
+// How far a tap on the floor can send it: the left wall to just short of Dad's boots.
+const FLOOR = { min: -6, max: 30, top: 55 };
 
 // The state of the current step. It is reset when the player moves on, and keeps the
 // level rules from the step's start so the options don't change if the level does.
@@ -131,12 +142,49 @@ export function StageOne({ onExit }: Props) {
   const toolboxWithDad = index > FIND_TOOLBOX || (index === FIND_TOOLBOX && task.solved);
   const noteSeen = index > READ_NOTE;
 
-  const pose: Pose = finished || (task.solved && step.kind !== 'line') ? 'happy' : step.kind === 'find' || step.kind === 'choice' ? 'think' : 'idle';
+  const fetching = index === FIND_TOOLBOX && task.solved;
+  const planned =
+    index < FIND_TOOLBOX ? [HOME] : fetching ? [AT_TOOLBOX, BY_DAD] : index > FIND_NOTE || (index === FIND_NOTE && task.solved) ? [UNDER_NOTE] : [BY_DAD];
+  const [floorX, setFloorX] = useState<number | null>(null);
+  useEffect(() => setFloorX(null), [planned.join(',')]);
+  const walk = useWalk(floorX === null ? planned : [floorX], OFF_SCREEN);
+  const walking = walk.leg >= 0;
+
+  // The toolbox waits until the meerkat reaches it, rides along to Dad, then is set down.
+  const [carry, setCarry] = useState<'waiting' | 'carrying' | 'done'>('waiting');
+  useEffect(() => {
+    if (!fetching) return;
+    if (walk.leg === 1) setCarry('carrying');
+    else if (walk.leg === -1 && carry === 'carrying') setCarry('done');
+  }, [fetching, walk.leg]);
+  const toolboxStyle =
+    fetching && carry === 'carrying'
+      ? { left: `${walk.x + 13}%`, top: '74%', width: '11%', zIndex: 1, transition: `left ${walk.ms}ms ease-in-out, top 0.25s, width 0.25s` }
+      : fetching && carry === 'waiting'
+        ? { left: '4%', top: '68%', width: '14%' }
+        : undefined;
+
+  const walkOnFloor = (e: MouseEvent) => {
+    if ((e.target as Element).closest('button') || (fetching && carry !== 'done')) return;
+    const box = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = ((e.clientX - box.left) / box.width) * 100;
+    const y = ((e.clientY - box.top) / box.height) * 100;
+    // The meerkat's picture is 30% wide, so centre it on the tapped spot.
+    if (y >= FLOOR.top) setFloorX(Math.min(FLOOR.max, Math.max(FLOOR.min, x - 15)));
+  };
+
+  const pose: Pose = walking
+    ? 'idle'
+    : finished || (task.solved && step.kind !== 'line')
+      ? 'happy'
+      : step.kind === 'find' || step.kind === 'choice'
+        ? 'think'
+        : 'idle';
   const canGoOn = step.kind === 'line' || step.kind === 'note' || task.solved;
 
   return (
     <div class="stage">
-      <div class="scene">
+      <div class="scene" onClick={walkOnFloor}>
         <GameImage path="backgrounds/bg_kitchen.png" label="Kitchen" class="scene__bg" />
         <GameImage
           path="characters/dad_legs.png"
@@ -162,13 +210,21 @@ export function StageOne({ onExit }: Props) {
               task.solved && step.kind === 'find' && step.target === o.id ? 'is-right' : '',
             ].join(' ')}
             aria-label={o.label}
+            style={o.id === 'toolbox' ? toolboxStyle : undefined}
             onClick={() => tapObject(o.id)}
           >
             <GameImage path={o.path} label={o.label} class="scene__obj-img" />
           </button>
         ))}
 
-        <GameImage path={heroImage(hero.id, pose)} label={hero.name} class="scene__hero" />
+        <div
+          class={`hero-walker ${walking ? 'is-walking' : ''}`}
+          style={{ left: `${walk.x}%`, transitionDuration: `${walk.ms}ms`, '--lean': `${walk.dir * 3}deg` }}
+        >
+          <div class="hero-walker__body">
+            <GameImage path={heroImage(hero.id, pose)} label={hero.name} class="hero-walker__img" />
+          </div>
+        </div>
       </div>
 
       <section class="dialog" aria-live="polite">
